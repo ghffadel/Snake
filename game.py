@@ -15,33 +15,40 @@ COLOR_BLUE = (0, 0, 255)
 COLOR_WHITE = (255, 255, 255)
 
 # assets
-BACKGROUND_IMG = pygame.image.load('assets/background.png')
-APPLE_IMG = pygame.image.load('assets/apple.png')
-SNAKE_IMG = pygame.image.load('assets/snake.png')
-FONT = pygame.font.Font('assets/PressStart2P.ttf', 24)
+BACKGROUND_IMG = pygame.image.load("assets/background.png")
+APPLE_IMG = pygame.image.load("assets/apple.png")
+SNAKE_IMG = pygame.image.load("assets/snake.png")
+FONT = pygame.font.Font("assets/PressStart2P.ttf", 24)
 
 # sound effects
-point_sound_effect = pygame.mixer.Sound('assets/point.wav') # https://freesound.org/people/Joao_Janz/sounds/482653/
-game_over_sound_effect = pygame.mixer.Sound('assets/game_over.wav') # https://freesound.org/people/myfox14/sounds/382310/
+
+# https://freesound.org/people/Joao_Janz/sounds/482653/
+point_sound_effect = pygame.mixer.Sound("assets/point.wav")
+
+# https://freesound.org/people/myfox14/sounds/382310/
+game_over_sound_effect = pygame.mixer.Sound("assets/game_over.wav")
 
 score = 0
 
 # apple
 apple = {
-    'image': APPLE_IMG,
-    'position': (random.randint(100, WIDTH - 100), random.randint(100, WIDTH - 100))
+    "image": APPLE_IMG,
+    "position": (
+        random.randint(100, WIDTH - 100),
+        random.randint(100, WIDTH - 100),
+    ),
 }
 
 # snake
 snake = {
-    'direction': (0, -BLOCK),
-    'image': SNAKE_IMG,
-    'length': 1,
-    'positions': [(WIDTH // 2, WIDTH // 2)]
+    "direction": (0, -BLOCK),
+    "image": SNAKE_IMG,
+    "length": 1,
+    "positions": [(WIDTH // 2, WIDTH // 2)],
 }
-  
+
 window = pygame.display.set_mode((WIDTH, WIDTH))
-pygame.display.set_caption('Snake')
+pygame.display.set_caption("Snake")
 
 game_clock = pygame.time.Clock()
 game_over = False
@@ -50,7 +57,7 @@ while not game_over:
     window.blit(BACKGROUND_IMG, (0, 0))
 
     # draw elements
-    window.blit(apple['image'], apple['position'])
+    window.blit(apple["image"], apple["position"])
 
     # control snake
     for event in pygame.event.get():
@@ -59,44 +66,50 @@ while not game_over:
 
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP:
-                snake['direction'] = (0, -BLOCK)
+                snake["direction"] = (0, -BLOCK)
             if event.key == pygame.K_DOWN:
-                snake['direction'] = (0, BLOCK)
+                snake["direction"] = (0, BLOCK)
             if event.key == pygame.K_LEFT:
-                snake['direction'] = (-BLOCK, 0)
+                snake["direction"] = (-BLOCK, 0)
             if event.key == pygame.K_RIGHT:
-                snake['direction'] = (BLOCK, 0)
+                snake["direction"] = (BLOCK, 0)
 
-    current_x, current_y = snake['positions'][-1]
-    direction_x, direction_y = snake['direction']
+    current_x, current_y = snake["positions"][-1]
+    direction_x, direction_y = snake["direction"]
     new_x, new_y = (current_x + direction_x, current_y + direction_y)
 
-    if not (-BLOCK <= new_x <= WIDTH + BLOCK and -BLOCK <= new_y <= WIDTH + BLOCK):
+    if not (
+        -BLOCK <= new_x <= WIDTH + BLOCK and -BLOCK <= new_y <= WIDTH + BLOCK
+    ):
         game_over = True
 
     else:
         head = (new_x, new_y)
-        snake['positions'].append(head)
+        snake["positions"].append(head)
 
-        if len(snake['positions']) > snake['length']:
-            del snake['positions'][0]
-        
-        for position in snake['positions'][:-1]:
+        if len(snake["positions"]) > snake["length"]:
+            del snake["positions"][0]
+
+        for position in snake["positions"][:-1]:
             if position == head:
                 game_over = True
                 break
 
-        for position in snake['positions']:
-            window.blit(snake['image'], position)
-        
-        apple_x, apple_y = apple['position']
+        for position in snake["positions"]:
+            window.blit(snake["image"], position)
 
-        if apple_x - (BLOCK + 10) <= head[0] <= apple_x + (BLOCK + 10) and \
-            apple_y - (BLOCK + 10) <= head[1] <= apple_y + (BLOCK + 10):
+        apple_x, apple_y = apple["position"]
+
+        if apple_x - (BLOCK + 10) <= head[0] <= apple_x + (
+            BLOCK + 10
+        ) and apple_y - (BLOCK + 10) <= head[1] <= apple_y + (BLOCK + 10):
             point_sound_effect.play()
             score += 1
-            apple['position'] = (random.randint(0, WIDTH - 16), random.randint(0, WIDTH - 16))
-            snake['length'] += 1
+            apple["position"] = (
+                random.randint(0, WIDTH - 16),
+                random.randint(0, WIDTH - 16),
+            )
+            snake["length"] += 1
 
     # update
     pygame.display.update()
@@ -106,12 +119,14 @@ game_over_sound_effect.play()
 
 # game over screen
 window.fill(COLOR_BLACK)
-game_over_message = FONT.render('Game Over', 1, COLOR_WHITE)
+game_over_message = FONT.render("Game Over", 1, COLOR_WHITE)
 window.blit(game_over_message, (WIDTH // 2 - 100, WIDTH // 2 - 50))
 
 # score
-score_message = FONT.render('Your score: %d' % (snake['length'] - 1), 1, COLOR_WHITE)
-window.blit(score_message, (WIDTH // 2 - 150, WIDTH // 2))
+score_message = FONT.render(
+    "Your score: %d" % (snake["length"] - 1), 1, COLOR_WHITE
+)
+window.blit(score_message, (WIDTH // 5, WIDTH // 2))
 
 pygame.display.update()
 time.sleep(2)
