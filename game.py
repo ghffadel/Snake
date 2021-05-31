@@ -15,9 +15,16 @@ COLOR_BLUE = (0, 0, 255)
 COLOR_WHITE = (255, 255, 255)
 
 # assets
-APPLE_IMG = pygame.image.load('assets/Sprite-0001.png')
-SNAKE_IMG = pygame.image.load('assets/Sprite-0002.png')
+BACKGROUND_IMG = pygame.image.load('assets/background.png')
+APPLE_IMG = pygame.image.load('assets/apple.png')
+SNAKE_IMG = pygame.image.load('assets/snake.png')
 FONT = pygame.font.Font('assets/PressStart2P.ttf', 24)
+
+# sound effects
+point_sound_effect = pygame.mixer.Sound('assets/point.wav') # https://freesound.org/people/Joao_Janz/sounds/482653/
+game_over_sound_effect = pygame.mixer.Sound('assets/game_over.wav') # https://freesound.org/people/myfox14/sounds/382310/
+
+score = 0
 
 # apple
 apple = {
@@ -27,7 +34,7 @@ apple = {
 
 # snake
 snake = {
-    'direction': (0, BLOCK),
+    'direction': (0, -BLOCK),
     'image': SNAKE_IMG,
     'length': 1,
     'positions': [(WIDTH // 2, WIDTH // 2)]
@@ -40,7 +47,7 @@ game_clock = pygame.time.Clock()
 game_over = False
 
 while not game_over:
-    window.fill(COLOR_BLACK)
+    window.blit(BACKGROUND_IMG, (0, 0))
 
     # draw elements
     window.blit(apple['image'], apple['position'])
@@ -86,16 +93,25 @@ while not game_over:
 
         if apple_x - (BLOCK + 10) <= head[0] <= apple_x + (BLOCK + 10) and \
             apple_y - (BLOCK + 10) <= head[1] <= apple_y + (BLOCK + 10):
-            apple['position'] = (random.randint(0, WIDTH), random.randint(0, WIDTH))
+            point_sound_effect.play()
+            score += 1
+            apple['position'] = (random.randint(0, WIDTH - 16), random.randint(0, WIDTH - 16))
             snake['length'] += 1
 
     # update
     pygame.display.update()
     game_clock.tick(SPEED)
 
+game_over_sound_effect.play()
+
+# game over screen
+window.fill(COLOR_BLACK)
 game_over_message = FONT.render('Game Over', 1, COLOR_WHITE)
 window.blit(game_over_message, (WIDTH // 2 - 100, WIDTH // 2 - 50))
+
+# score
 score_message = FONT.render('Your score: %d' % (snake['length'] - 1), 1, COLOR_WHITE)
 window.blit(score_message, (WIDTH // 2 - 150, WIDTH // 2))
+
 pygame.display.update()
 time.sleep(2)
