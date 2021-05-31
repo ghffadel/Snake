@@ -1,7 +1,7 @@
 import pygame
 import random
 import time
-
+import menuv1
 pygame.init()
 
 # screen
@@ -52,8 +52,22 @@ pygame.display.set_caption("Snake")
 
 game_clock = pygame.time.Clock()
 game_over = False
+menu = True
+pause_menu = False
+credits_menu = False
+
+#background image
+main_menu = pygame.image.load("assets/snake_menu.jpg")
+#background1 = pygame.image.load("startscreen.png")
+pause_menu_image = pygame.image.load("assets/pause.jpg")
+credits_menu_image = pygame.image.load("assets/credits_snakev2.jpg")
+
+click = False
 
 while not game_over:
+    menuv1.run_menu()
+
+
     window.blit(BACKGROUND_IMG, (0, 0))
 
     # draw elements
@@ -73,6 +87,8 @@ while not game_over:
                 snake["direction"] = (-BLOCK, 0)
             if event.key == pygame.K_RIGHT:
                 snake["direction"] = (BLOCK, 0)
+            if event.key == pygame.K_p:
+                menuv1.pause()
 
     current_x, current_y = snake["positions"][-1]
     direction_x, direction_y = snake["direction"]
