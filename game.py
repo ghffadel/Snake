@@ -1,79 +1,101 @@
 import pygame
 import random
+import time
+
+pygame.init()
 
 # screen
+BLOCK = 15
+SPEED = 15
 WIDTH = 500
-WHITE = (255, 255, 255)
-ROWS = 20
-
-window = pygame.display.set_mode((WIDTH, WIDTH))
 
 # colors
 COLOR_BLACK = (0, 0, 0)
 COLOR_BLUE = (0, 0, 255)
+COLOR_WHITE = (255, 255, 255)
 
-# images
-SNAKE_IMG = pygame.image.load('assets/Sprite-0002.png')
+# assets
 APPLE_IMG = pygame.image.load('assets/Sprite-0001.png')
+SNAKE_IMG = pygame.image.load('assets/Sprite-0002.png')
+FONT = pygame.font.Font('assets/PressStart2P.ttf', 24)
 
 # apple
-apple = APPLE_IMG
-apple_in_screen = False
+apple = {
+    'image': APPLE_IMG,
+    'position': (random.randint(100, WIDTH - 100), random.randint(100, WIDTH - 100))
+}
 
 # snake
 snake = {
+    'direction': (0, BLOCK),
     'image': SNAKE_IMG,
-    'direction': (1, 0),
-    'position': ((WIDTH / 2), (WIDTH / 2))
+    'length': 1,
+    'positions': [(WIDTH // 2, WIDTH // 2)]
 }
+  
+window = pygame.display.set_mode((WIDTH, WIDTH))
+pygame.display.set_caption('Snake')
 
+game_clock = pygame.time.Clock()
+game_over = False
 
-def draw_snake(snake):
-    distance = WIDTH // ROWS
-    x, y = snake['position']
+while not game_over:
+    window.fill(COLOR_BLACK)
 
-    window.blit(snake['image'], (x, y))
+    # draw elements
+    window.blit(apple['image'], apple['position'])
 
-    if snake:
-        center = distance // 2
-        radius = 3
-        circle1_center = (x * distance + center - radius, y * distance + 8)
-        circle2_center = (x * distance + distance - 2 * radius, y * distance + 8)
-
-
-def snake_controls():
-
+    # control snake
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            game_loop = False
+            pygame.quit()
 
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP:
-                print('UP')
+                snake['direction'] = (0, -BLOCK)
             if event.key == pygame.K_DOWN:
-                print('DOWN')
-
+                snake['direction'] = (0, BLOCK)
             if event.key == pygame.K_LEFT:
-                print('LEFT')
+                snake['direction'] = (-BLOCK, 0)
             if event.key == pygame.K_RIGHT:
-                print('RIGHT')
+                snake['direction'] = (BLOCK, 0)
 
+    current_x, current_y = snake['positions'][-1]
+    direction_x, direction_y = snake['direction']
+    new_x, new_y = (current_x + direction_x, current_y + direction_y)
 
-game_loop = True
-game_clock = pygame.time.Clock()
+    if not (-BLOCK <= new_x <= WIDTH + BLOCK and -BLOCK <= new_y <= WIDTH + BLOCK):
+        game_over = True
 
-while game_loop:
+    else:
+        head = (new_x, new_y)
+        snake['positions'].append(head)
 
-    # draw
-    if not apple_in_screen:
-        window.blit(apple, (random.randint(0, WIDTH), random.randint(0, WIDTH)))
-        apple_in_screen = True
+        if len(snake['positions']) > snake['length']:
+            del snake['positions'][0]
+        
+        for position in snake['positions'][:-1]:
+            if position == head:
+                game_over = True
+                break
 
-    draw_snake(snake)
+        for position in snake['positions']:
+            window.blit(snake['image'], position)
+        
+        apple_x, apple_y = apple['position']
 
-    # control snake
-    snake_controls()
+        if apple_x - (BLOCK + 10) <= head[0] <= apple_x + (BLOCK + 10) and \
+            apple_y - (BLOCK + 10) <= head[1] <= apple_y + (BLOCK + 10):
+            apple['position'] = (random.randint(0, WIDTH), random.randint(0, WIDTH))
+            snake['length'] += 1
 
     # update
-    pygame.display.flip()
-    game_clock.tick(60)
+    pygame.display.update()
+    game_clock.tick(SPEED)
+
+game_over_message = FONT.render('Game Over', 1, COLOR_WHITE)
+window.blit(game_over_message, (WIDTH // 2 - 100, WIDTH // 2 - 50))
+score_message = FONT.render('Your score: %d' % (snake['length'] - 1), 1, COLOR_WHITE)
+window.blit(score_message, (WIDTH // 2 - 150, WIDTH // 2))
+pygame.display.update()
+time.sleep(2)
